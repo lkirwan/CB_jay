@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
 import StarRating from '../components/StarRating';
 
-function OfferingCard({ offering, ratings }) {
+function OfferingCard({ offering, ratings, onToggleStatus }) {
   const [expanded, setExpanded] = useState(false);
+  const isActive = (offering.status ?? 'active') === 'active';
   const offeringRatings = ratings.filter((r) => r.offeringId === offering.id);
   const avg =
     offeringRatings.length > 0
@@ -17,10 +18,15 @@ function OfferingCard({ offering, ratings }) {
   }));
 
   return (
-    <div className="offering-card">
+    <div className={`offering-card ${!isActive ? 'offering-card--closed' : ''}`}>
       <div className="offering-card-header" onClick={() => setExpanded((v) => !v)}>
         <div className="offering-info">
-          <h3 className="offering-name">{offering.name}</h3>
+          <div className="offering-name-row">
+            <h3 className="offering-name">{offering.name}</h3>
+            <span className={`status-badge status-badge--${isActive ? 'active' : 'closed'}`}>
+              {isActive ? 'Active' : 'Closed'}
+            </span>
+          </div>
           <span className="offering-count">{offeringRatings.length} rating{offeringRatings.length !== 1 ? 's' : ''}</span>
         </div>
         <div className="offering-score">
@@ -32,6 +38,14 @@ function OfferingCard({ offering, ratings }) {
           ) : (
             <span className="no-ratings">No ratings yet</span>
           )}
+          <button
+            type="button"
+            className={`btn btn-sm ${isActive ? 'btn-ghost' : 'btn-outline'} status-toggle-btn`}
+            onClick={(e) => { e.stopPropagation(); onToggleStatus(offering.id, isActive ? 'closed' : 'active'); }}
+            title={isActive ? 'Close this offering' : 'Re-open this offering'}
+          >
+            {isActive ? 'Close' : 'Re-open'}
+          </button>
           <span className="expand-icon">{expanded ? '▲' : '▼'}</span>
         </div>
       </div>
@@ -95,10 +109,11 @@ function OfferingCard({ offering, ratings }) {
 }
 
 export default function DashboardPage() {
-  const { data, addOffering } = useStore();
+  const { data, addOffering, setOfferingStatus } = useStore();
   const [newName, setNewName] = useState('');
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [sortBy, setSortBy] = useState('recent');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     const id = setInterval(() => setLastUpdated(new Date()), 3000);
@@ -118,7 +133,16 @@ export default function DashboardPage() {
       ? data.ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
       : null;
 
-  const sortedOfferings = [...data.offerings].sort((a, b) => {
+  const activeCount = data.offerings.filter((o) => (o.status ?? 'active') === 'active').length;
+  const closedCount = data.offerings.filter((o) => o.status === 'closed').length;
+
+  const filteredOfferings = data.offerings.filter((o) => {
+    if (statusFilter === 'active') return (o.status ?? 'active') === 'active';
+    if (statusFilter === 'closed') return o.status === 'closed';
+    return true;
+  });
+
+  const sortedOfferings = [...filteredOfferings].sort((a, b) => {
     if (sortBy === 'recent') return new Date(b.createdAt) - new Date(a.createdAt);
     if (sortBy === 'alpha') return a.name.localeCompare(b.name);
     if (sortBy === 'score') {
@@ -145,8 +169,8 @@ export default function DashboardPage() {
       {/* Summary stats */}
       <div className="stats-row">
         <div className="stat-card">
-          <span className="stat-value">{data.offerings.length}</span>
-          <span className="stat-label">Total Offerings</span>
+          <span className="stat-value">{activeCount}</span>
+          <span className="stat-label">Active Offerings</span>
         </div>
         <div className="stat-card">
           <span className="stat-value">{totalRatings}</span>
@@ -181,32 +205,54 @@ export default function DashboardPage() {
       {/* Offerings list */}
       <div className="offerings-section">
         <div className="offerings-header">
-          <h3>All Offerings</h3>
-          {data.offerings.length > 1 && (
-            <div className="sort-controls">
-              <label htmlFor="sort-select">Sort by:</label>
-              <select
-                id="sort-select"
-                className="form-select form-select-sm"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+          <div className="offerings-header-top">
+            <h3>All Offerings</h3>
+            {data.offerings.length > 1 && (
+              <div className="sort-controls">
+                <label htmlFor="sort-select">Sort by:</label>
+                <select
+                  id="sort-select"
+                  className="form-select form-select-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="recent">Most Recent</option>
+                  <option value="alpha">Alphabetical</option>
+                  <option value="score">Highest Score</option>
+                </select>
+              </div>
+            )}
+          </div>
+          <div className="status-tabs">
+            {[
+              { key: 'all', label: `All (${data.offerings.length})` },
+              { key: 'active', label: `Active (${activeCount})` },
+              { key: 'closed', label: `Closed (${closedCount})` },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                className={`status-tab ${statusFilter === key ? 'status-tab--active' : ''}`}
+                onClick={() => setStatusFilter(key)}
               >
-                <option value="recent">Most Recent</option>
-                <option value="alpha">Alphabetical</option>
-                <option value="score">Highest Score</option>
-              </select>
-            </div>
-          )}
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {data.offerings.length === 0 ? (
+        {filteredOfferings.length === 0 ? (
           <div className="empty-state">
-            <p>No offerings yet. Add one above or have a client submit a rating with a new offering.</p>
+            <p>
+              {data.offerings.length === 0
+                ? 'No offerings yet. Add one above.'
+                : `No ${statusFilter} offerings.`}
+            </p>
           </div>
         ) : (
           <div className="offerings-list">
             {sortedOfferings.map((o) => (
-              <OfferingCard key={o.id} offering={o} ratings={data.ratings} />
+              <OfferingCard key={o.id} offering={o} ratings={data.ratings} onToggleStatus={setOfferingStatus} />
             ))}
           </div>
         )}

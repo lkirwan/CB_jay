@@ -1,24 +1,34 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 import StarRating from '../components/StarRating';
 
 export default function ClientPage() {
-  const { data, addOffering, addRating } = useStore();
+  const { data, addRating } = useStore();
+  const activeOfferings = data.offerings.filter((o) => (o.status ?? 'active') === 'active');
   const [offeringId, setOfferingId] = useState('');
-  const [newOfferingName, setNewOfferingName] = useState('');
-  const [showNewOffering, setShowNewOffering] = useState(false);
   const [score, setScore] = useState(0);
   const [username, setUsername] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  function handleCreateOffering(e) {
-    e.preventDefault();
-    if (!newOfferingName.trim()) return;
-    const offering = addOffering(newOfferingName);
-    setOfferingId(offering.id);
-    setNewOfferingName('');
-    setShowNewOffering(false);
+  // Show dialog when no active offerings exist
+  if (activeOfferings.length === 0) {
+    return (
+      <div className="page-center">
+        <div className="card no-offerings-card">
+          <div className="no-offerings-icon">🔔</div>
+          <h2>No Offerings Available</h2>
+          <p>There are no offerings available to rate at this time.</p>
+          <p className="no-offerings-sub">
+            Please check back later, or contact your manager to set up offerings.
+          </p>
+          <Link to="/dashboard" className="btn btn-outline no-offerings-link">
+            Manager Login →
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   function handleSubmit(e) {
@@ -76,56 +86,19 @@ export default function ClientPage() {
             <label className="form-label" htmlFor="offering-select">
               Offering <span className="required">*</span>
             </label>
-            <div className="offering-select-row">
-              <select
-                id="offering-select"
-                className="form-select"
-                value={offeringId}
-                onChange={(e) => setOfferingId(e.target.value)}
-              >
+            <select
+              id="offering-select"
+              className="form-select"
+              value={offeringId}
+              onChange={(e) => setOfferingId(e.target.value)}
+            >
                 <option value="">-- Select an offering --</option>
-                {data.offerings.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.name}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={() => setShowNewOffering((v) => !v)}
-              >
-                + New
-              </button>
-            </div>
-
-            {showNewOffering && (
-              <div className="new-offering-row">
-                <input
-                  className="form-input"
-                  type="text"
-                  placeholder="Offering name"
-                  value={newOfferingName}
-                  onChange={(e) => setNewOfferingName(e.target.value)}
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  className="btn btn-primary btn-sm"
-                  onClick={handleCreateOffering}
-                  disabled={!newOfferingName.trim()}
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  onClick={() => setShowNewOffering(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
+                {activeOfferings.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Star rating */}
