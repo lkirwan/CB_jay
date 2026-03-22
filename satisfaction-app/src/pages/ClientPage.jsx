@@ -30,7 +30,7 @@ export default function ClientPage() {
           <p className="no-offerings-sub">
             Please check back later, or contact your manager to set up offerings.
           </p>
-          <Link to="/dashboard" className="btn btn-outline no-offerings-link">
+          <Link to="/login" className="btn btn-outline no-offerings-link">
             Manager Login →
           </Link>
         </div>

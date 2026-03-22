@@ -1,6 +1,15 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate('/');
+  }
+
   return (
     <header className="app-header">
       <div className="header-brand">
@@ -12,9 +21,16 @@ export default function Header() {
         <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
           Submit Rating
         </NavLink>
-        <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-          Manager Dashboard
-        </NavLink>
+        {isAuthenticated ? (
+          <>
+            <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+              Manager Dashboard
+            </NavLink>
+            <button className="btn btn-sm header-logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
+        ) : null}
       </nav>
     </header>
   );

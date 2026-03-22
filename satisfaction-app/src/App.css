@@ -259,6 +259,24 @@
 .status-tab:hover { border-color: var(--primary); color: var(--primary); }
 .status-tab--active { background: var(--primary); border-color: var(--primary); color: #fff; }
 
+/* Login card */
+.login-card { text-align: center; padding: 2.5rem 2rem; max-width: 400px; }
+.login-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.login-card .card-title { margin-bottom: 0.25rem; }
+.login-card .rating-form { text-align: left; margin-top: 1.5rem; }
+
+/* Header logout button */
+.header-logout-btn {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border-color: rgba(255,255,255,.4);
+  margin-left: 0.25rem;
+}
+.header-logout-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,.28);
+  border-color: rgba(255,255,255,.7);
+}
+
 /* No offerings dialog */
 .no-offerings-card {
   text-align: center;
