@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../hooks/useStore';
 import StarRating from '../components/StarRating';
@@ -11,6 +11,13 @@ export default function ClientPage() {
   const [username, setUsername] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-select when there is exactly one active offering
+  useEffect(() => {
+    if (activeOfferings.length === 1) {
+      setOfferingId(activeOfferings[0].id);
+    }
+  }, [activeOfferings.length, activeOfferings[0]?.id]);
 
   // Show dialog when no active offerings exist
   if (activeOfferings.length === 0) {
@@ -47,7 +54,7 @@ export default function ClientPage() {
   }
 
   function handleReset() {
-    setOfferingId('');
+    setOfferingId(activeOfferings.length === 1 ? activeOfferings[0].id : '');
     setScore(0);
     setUsername('');
     setSubmitted(false);
