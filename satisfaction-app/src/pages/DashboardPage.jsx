@@ -143,40 +143,54 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadDashboard = useCallback(async () => {
-    const [nextOfferings, nextRatings] = await Promise.all([
-      offeringsApi.listAll(),
-      ratingsApi.listAll(),
-    ]);
+  const applyDashboardData = useCallback((nextOfferings, nextRatings) => {
     setOfferings(nextOfferings);
     setRatings(nextRatings);
     setLastUpdated(new Date());
   }, []);
 
+  const loadDashboard = useCallback(async () => {
+    const [nextOfferings, nextRatings] = await Promise.all([
+      offeringsApi.listAll(),
+      ratingsApi.listAll(),
+    ]);
+    applyDashboardData(nextOfferings, nextRatings);
+  }, [applyDashboardData]);
+
   useEffect(() => {
     let isMounted = true;
 
-    loadDashboard()
-      .catch((err) => {
+    const refreshDashboard = async () => {
+      try {
+        const [nextOfferings, nextRatings] = await Promise.all([
+          offeringsApi.listAll(),
+          ratingsApi.listAll(),
+        ]);
+        if (!isMounted) return;
+        setError('');
+        applyDashboardData(nextOfferings, nextRatings);
+      } catch (err) {
         if (isMounted) {
           setError(err.message || 'Unable to load dashboard data.');
         }
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) {
           setIsLoading(false);
         }
-      });
+      }
+    };
+
+    refreshDashboard();
 
     const id = setInterval(() => {
-      loadDashboard().catch(() => {});
+      refreshDashboard();
     }, 3000);
 
     return () => {
       isMounted = false;
       clearInterval(id);
     };
-  }, [loadDashboard]);
+  }, [applyDashboardData]);
 
   async function handleAddOffering(e) {
     e.preventDefault();

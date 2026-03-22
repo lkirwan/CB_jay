@@ -4,28 +4,41 @@ import { authApi, clearStoredToken, getStoredToken, setStoredToken } from '../li
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const hasStoredToken = Boolean(getStoredToken());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(hasStoredToken);
 
   useEffect(() => {
+    let isMounted = true;
     const token = getStoredToken();
     if (!token) {
-      setIsLoading(false);
-      return;
+      return () => {
+        isMounted = false;
+      };
     }
 
     authApi.me()
       .then((currentUser) => {
+        if (!isMounted) return;
         setUser(currentUser);
         setIsAuthenticated(true);
       })
       .catch(() => {
+        if (!isMounted) return;
         clearStoredToken();
         setUser(null);
         setIsAuthenticated(false);
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = useCallback(async (password) => {

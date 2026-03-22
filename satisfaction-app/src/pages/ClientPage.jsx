@@ -19,6 +19,9 @@ export default function ClientPage() {
       .then((offerings) => {
         if (!isMounted) return;
         setActiveOfferings(offerings);
+        if (offerings.length === 1) {
+          setOfferingId(offerings[0].id);
+        }
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -35,12 +38,6 @@ export default function ClientPage() {
     };
   }, []);
 
-  // Auto-select when there is exactly one active offering
-  useEffect(() => {
-    if (activeOfferings.length === 1) {
-      setOfferingId(activeOfferings[0].id);
-    }
-  }, [activeOfferings.length, activeOfferings[0]?.id]);
 
   if (isLoading) {
     return (
