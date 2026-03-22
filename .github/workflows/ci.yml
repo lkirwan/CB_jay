@@ -11,11 +11,8 @@ permissions:
 
 jobs:
   frontend:
-    name: Frontend – lint, test & build
+    name: Frontend – lint, test & Docker build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: satisfaction-app
 
     steps:
       - uses: actions/checkout@v4
@@ -28,23 +25,23 @@ jobs:
           cache-dependency-path: satisfaction-app/package-lock.json
 
       - name: Install dependencies
+        working-directory: satisfaction-app
         run: npm ci
 
       - name: Lint
+        working-directory: satisfaction-app
         run: npm run lint
 
       - name: Test
+        working-directory: satisfaction-app
         run: npm run test
 
-      - name: Build
-        run: npm run build
+      - name: Build Docker image
+        run: docker build -t satisfaction-app satisfaction-app/
 
   backend:
-    name: Backend – test & build
+    name: Backend – test & Docker build
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +54,8 @@ jobs:
           cache: 'maven'
 
       - name: Test
+        working-directory: backend
         run: mvn --batch-mode test
 
-      - name: Build
-        run: mvn --batch-mode package -DskipTests
+      - name: Build Docker image
+        run: docker build -t backend backend/
