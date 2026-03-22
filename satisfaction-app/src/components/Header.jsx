@@ -24,7 +24,7 @@ export default function Header() {
         {isAuthenticated ? (
           <>
             <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-              Manager Dashboard
+              Facilitator Dashboard
             </NavLink>
             <button className="btn btn-sm header-logout-btn" onClick={handleLogout}>
               Logout

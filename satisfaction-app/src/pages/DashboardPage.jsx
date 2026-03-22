@@ -159,9 +159,9 @@ export default function DashboardPage() {
     <div className="dashboard-page">
       <div className="dashboard-header">
         <div>
-          <h2 className="dashboard-title">Manager Dashboard</h2>
+          <h2 className="dashboard-title">Facilitator Dashboard</h2>
           <p className="last-updated">
-            Live · Last refreshed {lastUpdated.toLocaleTimeString()}
+            Live · Last refreshed {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
       </div>

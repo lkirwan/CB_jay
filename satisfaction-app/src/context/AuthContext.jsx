@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 
-const SESSION_KEY = 'cb_jay_manager_auth';
-const MANAGER_PASSWORD = import.meta.env.VITE_MANAGER_PASSWORD ?? 'manager';
+const SESSION_KEY = 'cb_jay_facilitator_auth';
+const FACILITATOR_PASSWORD = import.meta.env.VITE_FACILITATOR_PASSWORD ?? 'manager';
 
 const AuthContext = createContext(null);
 
@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   );
 
   const login = useCallback((password) => {
-    if (password === MANAGER_PASSWORD) {
+    if (password === FACILITATOR_PASSWORD) {
       sessionStorage.setItem(SESSION_KEY, '1');
       setIsAuthenticated(true);
       return true;
@@ -36,4 +36,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 }
-

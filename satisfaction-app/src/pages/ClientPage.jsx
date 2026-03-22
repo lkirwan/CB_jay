@@ -28,10 +28,10 @@ export default function ClientPage() {
           <h2>No Offerings Available</h2>
           <p>There are no offerings available to rate at this time.</p>
           <p className="no-offerings-sub">
-            Please check back later, or contact your manager to set up offerings.
+            Please check back later, or contact your facilitator to set up offerings.
           </p>
           <Link to="/login" className="btn btn-outline no-offerings-link">
-            Manager Login →
+            Facilitator Login →
           </Link>
         </div>
       </div>

@@ -4,7 +4,7 @@ import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 import ClientPage from './pages/ClientPage';
 import DashboardPage from './pages/DashboardPage';
-import ManagerLoginPage from './pages/ManagerLoginPage';
+import FacilitatorLoginPage from './pages/FacilatorLoginPage';
 import './App.css';
 
 export default function App() {
@@ -16,7 +16,7 @@ export default function App() {
           <main className="app-main">
             <Routes>
               <Route path="/" element={<ClientPage />} />
-              <Route path="/login" element={<ManagerLoginPage />} />
+              <Route path="/login" element={<FacilitatorLoginPage />} />
               <Route
                 path="/dashboard"
                 element={
