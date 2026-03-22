@@ -1,0 +1,49 @@
+name: Deploy Backend to DigitalOcean
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build, push & deploy backend Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Authenticate with DigitalOcean ───────────────────────────────────
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # ── Log in to DigitalOcean Container Registry ────────────────────────
+      - name: Log in to DOCR
+        # 600 s (10 min) is sufficient to cover the docker build + push steps that follow
+        run: doctl registry login --expiry-seconds 600
+
+      # ── Build & push the image ───────────────────────────────────────────
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backend:${{ github.sha }} \
+            -t registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backend:latest \
+            backend/
+
+      - name: Push Docker image
+        run: |
+          docker push registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backend:${{ github.sha }}
+          docker push registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backend:latest
+
+      # ── Trigger App Platform deployment ─────────────────────────────────
+      - name: Deploy to DigitalOcean App Platform
+        # --wait streams deployment progress and exits non-zero if the deployment fails,
+        # surfacing the full doctl error in the Actions log.
+        run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --wait

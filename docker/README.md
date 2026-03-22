@@ -60,6 +60,24 @@ curl -i -X POST http://localhost/api/auth/login \
   -d '{"password":"change-me-now"}'
 ```
 
+## DigitalOcean deployment (GitHub Actions)
+
+Merging a PR into `main` automatically builds the backend Docker image, pushes it to the DigitalOcean Container Registry (DOCR), and triggers a new App Platform deployment via `.github/workflows/deploy-backend.yml`.
+
+### Required GitHub repository secrets
+
+| Secret | Description |
+|---|---|
+| `DIGITALOCEAN_ACCESS_TOKEN` | Personal access token created in the DigitalOcean control panel (API → Tokens) with read/write scope. |
+| `DIGITALOCEAN_REGISTRY_NAME` | Name of your DOCR registry (the part after `registry.digitalocean.com/`). |
+| `DIGITALOCEAN_APP_ID` | App Platform application ID, found with `doctl apps list` or in the App Platform URL. |
+
+### One-time setup
+
+1. Create a registry: `doctl registry create <name>`
+2. Create an App Platform app that uses the `backend` image from DOCR.
+3. Add the three secrets above to **Settings → Secrets and variables → Actions** in the GitHub repository.
+
 ## Notes
 
 - The frontend Nginx config proxies `/api/*` to the `backend` service.
