@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export default function ManagerLoginPage() {
+export default function FacilitatorLoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,33 +17,31 @@ export default function ManagerLoginPage() {
     setError('');
     setLoading(true);
 
-    // Small artificial delay to deter brute-force
-    setTimeout(() => {
-      const ok = login(password);
-      setLoading(false);
-      if (ok) {
+    login(password)
+      .then(() => {
         navigate(from, { replace: true });
-      } else {
-        setError('Incorrect password. Please try again.');
+      })
+      .catch((err) => {
+        setError(err.message || 'Incorrect password. Please try again.');
         setPassword('');
-      }
-    }, 400);
+      })
+      .finally(() => setLoading(false));
   }
 
   return (
     <div className="page-center">
       <div className="card login-card">
         <div className="login-icon">🔐</div>
-        <h2 className="card-title">Manager Login</h2>
-        <p className="card-subtitle">Enter your manager password to access the dashboard</p>
+        <h2 className="card-title">Facilitator Login</h2>
+        <p className="card-subtitle">Enter your facilitator password to access the dashboard</p>
 
         <form onSubmit={handleSubmit} className="rating-form">
           <div className="form-group">
-            <label className="form-label" htmlFor="manager-password">
+            <label className="form-label" htmlFor="facilitator-password">
               Password
             </label>
             <input
-              id="manager-password"
+              id="facilitator-password"
               className="form-input"
               type="password"
               placeholder="Enter password"
@@ -68,4 +66,5 @@ export default function ManagerLoginPage() {
     </div>
   );
 }
+
 

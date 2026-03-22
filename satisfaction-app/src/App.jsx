@@ -4,7 +4,7 @@ import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 import ClientPage from './pages/ClientPage';
 import DashboardPage from './pages/DashboardPage';
-import FacilitatorLoginPage from './pages/FacilatorLoginPage';
+import FacilitatorLoginPage from './pages/FacilitatorLoginPage';
 import './App.css';
 
 export default function App() {

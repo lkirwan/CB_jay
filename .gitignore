@@ -4,6 +4,10 @@
 #npm
 package-lock.json
 
+# Java backend build and local data
+backend/target/
+backend/data/
+
 # Default ignored files
 /shelf/
 # Ignored default folder with query files

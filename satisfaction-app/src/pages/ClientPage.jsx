@@ -1,16 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useStore } from '../hooks/useStore';
 import StarRating from '../components/StarRating';
+import { offeringsApi, ratingsApi } from '../lib/api';
 
 export default function ClientPage() {
-  const { data, addRating } = useStore();
-  const activeOfferings = data.offerings.filter((o) => (o.status ?? 'active') === 'active');
+  const [activeOfferings, setActiveOfferings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [offeringId, setOfferingId] = useState('');
   const [score, setScore] = useState(0);
   const [username, setUsername] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    let isMounted = true;
+
+    offeringsApi.listActive()
+      .then((offerings) => {
+        if (!isMounted) return;
+        setActiveOfferings(offerings);
+      })
+      .catch((err) => {
+        if (!isMounted) return;
+        setError(err.message || 'Unable to load offerings.');
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Auto-select when there is exactly one active offering
   useEffect(() => {
@@ -18,6 +41,33 @@ export default function ClientPage() {
       setOfferingId(activeOfferings[0].id);
     }
   }, [activeOfferings.length, activeOfferings[0]?.id]);
+
+  if (isLoading) {
+    return (
+      <div className="page-center">
+        <div className="card no-offerings-card">
+          <h2>Loading Offerings…</h2>
+          <p>Please wait while available offerings are loaded.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && activeOfferings.length === 0) {
+    return (
+      <div className="page-center">
+        <div className="card no-offerings-card">
+          <div className="no-offerings-icon">⚠️</div>
+          <h2>Unable to Load Offerings</h2>
+          <p>{error}</p>
+          <p className="no-offerings-sub">Please try again in a moment or contact your facilitator.</p>
+          <Link to="/login" className="btn btn-outline no-offerings-link">
+            Facilitator Login →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Show dialog when no active offerings exist
   if (activeOfferings.length === 0) {
@@ -49,8 +99,14 @@ export default function ClientPage() {
       setError('Please select a star rating.');
       return;
     }
-    addRating(offeringId, score, username);
-    setSubmitted(true);
+
+    ratingsApi.create({ offeringId, score, username })
+      .then(() => {
+        setSubmitted(true);
+      })
+      .catch((err) => {
+        setError(err.message || 'Unable to submit your rating.');
+      });
   }
 
   function handleReset() {
@@ -62,7 +118,7 @@ export default function ClientPage() {
   }
 
   if (submitted) {
-    const offering = data.offerings.find((o) => o.id === offeringId);
+    const offering = activeOfferings.find((o) => o.id === offeringId);
     return (
       <div className="page-center">
         <div className="card success-card">
@@ -99,8 +155,8 @@ export default function ClientPage() {
               value={offeringId}
               onChange={(e) => setOfferingId(e.target.value)}
             >
-                <option value="">-- Select an offering --</option>
-                {activeOfferings.map((o) => (
+              <option value="">-- Select an offering --</option>
+              {activeOfferings.map((o) => (
                 <option key={o.id} value={o.id}>
                   {o.name}
                 </option>
