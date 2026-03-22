@@ -1,16 +1,70 @@
-# React + Vite
+# Satisfaction App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the client satisfaction feedback project.
 
-Currently, two official plugins are available:
+## Requirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20+ recommended
+- npm (this repo includes a `package-lock.json`)
 
-## React Compiler
+## Install
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+From the `satisfaction-app` folder:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Run in non-prod
+
+Use the Vite development server for local development:
+
+```bash
+npm run dev
+```
+
+This starts the app in development mode with hot reloading.
+
+## Run for PROD
+
+Create an optimized production build:
+
+```bash
+npm run build
+```
+
+The production-ready files are generated in `dist/`.
+
+## Preview the PROD build locally
+
+After building, serve the production bundle locally to verify it before deployment:
+
+```bash
+npm run preview
+```
+
+## Environment notes
+
+This app does not currently include any checked-in environment files.
+
+If you need environment-specific values later, use Vite's standard file names:
+
+- `.env.development` for non-prod/local development values
+- `.env.production` for production build values
+
+Only variables prefixed with `VITE_` are exposed to the React app.
+
+## Common workflow
+
+```bash
+npm install
+npm run dev
+```
+
+For a production-style check:
+
+```bash
+npm install
+npm run build
+npm run preview
+```
