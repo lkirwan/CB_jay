@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/98</span>
+                <span class='fraction'>0/107</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/82</span>
+                <span class='fraction'>0/84</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/36</span>
+                <span class='fraction'>0/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/82</span>
+                <span class='fraction'>0/90</span>
             </div>
         
             
@@ -412,7 +412,21 @@
 <a name='L347'></a><a href='#L347'>347</a>
 <a name='L348'></a><a href='#L348'>348</a>
 <a name='L349'></a><a href='#L349'>349</a>
-<a name='L350'></a><a href='#L350'>350</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L350'></a><a href='#L350'>350</a>
+<a name='L351'></a><a href='#L351'>351</a>
+<a name='L352'></a><a href='#L352'>352</a>
+<a name='L353'></a><a href='#L353'>353</a>
+<a name='L354'></a><a href='#L354'>354</a>
+<a name='L355'></a><a href='#L355'>355</a>
+<a name='L356'></a><a href='#L356'>356</a>
+<a name='L357'></a><a href='#L357'>357</a>
+<a name='L358'></a><a href='#L358'>358</a>
+<a name='L359'></a><a href='#L359'>359</a>
+<a name='L360'></a><a href='#L360'>360</a>
+<a name='L361'></a><a href='#L361'>361</a>
+<a name='L362'></a><a href='#L362'>362</a>
+<a name='L363'></a><a href='#L363'>363</a>
+<a name='L364'></a><a href='#L364'>364</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -559,10 +573,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -570,17 +580,35 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -906,40 +934,54 @@ export default function <span class="fstat-no" title="function not covered" >Das
   const [error, <span class="cstat-no" title="statement not covered" >setError] = useState('');</span>
   const [isLoading, <span class="cstat-no" title="statement not covered" >setIsLoading] = useState(true);</span>
 &nbsp;
-  const <span class="cstat-no" title="statement not covered" >loadDashboard = useCallback(<span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
-    const [nextOfferings, nextRatings] = <span class="cstat-no" title="statement not covered" >await Promise.all([</span>
-      offeringsApi.listAll(),
-      ratingsApi.listAll(),
-    ]);
+  const <span class="cstat-no" title="statement not covered" >applyDashboardData = <span class="fstat-no" title="function not covered" >useCallback((n</span>extOfferings, nextRatings) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    setOfferings(nextOfferings);</span>
 <span class="cstat-no" title="statement not covered" >    setRatings(nextRatings);</span>
 <span class="cstat-no" title="statement not covered" >    setLastUpdated(new Date());</span>
   }, []);
 &nbsp;
+  const <span class="cstat-no" title="statement not covered" >loadDashboard = useCallback(<span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
+    const [nextOfferings, nextRatings] = <span class="cstat-no" title="statement not covered" >await Promise.all([</span>
+      offeringsApi.listAll(),
+      ratingsApi.listAll(),
+    ]);
+<span class="cstat-no" title="statement not covered" >    applyDashboardData(nextOfferings, nextRatings);</span>
+  }, [applyDashboardData]);
+&nbsp;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span></span>
     let isMounted = <span class="cstat-no" title="statement not covered" >true;</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    loadDashboard()</span>
-      .<span class="fstat-no" title="function not covered" >catch((e</span>rr) =&gt; {
+    const refreshDashboard = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >      try {</span>
+        const [nextOfferings, nextRatings] = <span class="cstat-no" title="statement not covered" >await Promise.all([</span>
+          offeringsApi.listAll(),
+          ratingsApi.listAll(),
+        ]);
+<span class="cstat-no" title="statement not covered" >        if (!isMounted) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >        setError('');</span>
+<span class="cstat-no" title="statement not covered" >        applyDashboardData(nextOfferings, nextRatings);</span>
+      } catch (err) {
 <span class="cstat-no" title="statement not covered" >        if (isMounted) {</span>
 <span class="cstat-no" title="statement not covered" >          setError(err.message || 'Unable to load dashboard data.');</span>
         }
-      })
-      .<span class="fstat-no" title="function not covered" >finally(() =&gt; {</span>
+      } finally {
 <span class="cstat-no" title="statement not covered" >        if (isMounted) {</span>
 <span class="cstat-no" title="statement not covered" >          setIsLoading(false);</span>
         }
-      });
+      }
+    };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    refreshDashboard();</span>
 &nbsp;
     const id = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >setInterval(() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >      loadDashboard().<span class="fstat-no" title="function not covered" >catch(() =&gt; {</span>});</span>
+<span class="cstat-no" title="statement not covered" >      refreshDashboard();</span>
     }, 3000);
 &nbsp;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    return () =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >      isMounted = false;</span>
 <span class="cstat-no" title="statement not covered" >      clearInterval(id);</span>
     };
-  }, [loadDashboard]);
+  }, [applyDashboardData]);
 &nbsp;
   async function <span class="fstat-no" title="function not covered" >handleAddOffering(e</span>) {
 <span class="cstat-no" title="statement not covered" >    e.preventDefault();</span>
@@ -1117,7 +1159,7 @@ export default function <span class="fstat-no" title="function not covered" >Das
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-22T16:18:46.773Z
+                at 2026-03-22T18:34:47.439Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
