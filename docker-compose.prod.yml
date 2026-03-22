@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: cbjay-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      APP_FRONTEND_ORIGIN: ${APP_FRONTEND_ORIGIN:-https://app.example.com}
+      APP_FACILITATOR_USERNAME: ${APP_FACILITATOR_USERNAME:-facilitator}
+      APP_FACILITATOR_PASSWORD: ${APP_FACILITATOR_PASSWORD:-change-me-now}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-replace-with-a-long-random-secret}
+      APP_JWT_EXPIRATION_MINUTES: ${APP_JWT_EXPIRATION_MINUTES:-480}
+    volumes:
+      - backend-data:/app/data
+    expose:
+      - "8080"
+
+  frontend:
+    build:
+      context: ./satisfaction-app
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: cbjay-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  backend-data:
+
