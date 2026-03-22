@@ -1,6 +1,9 @@
 #IDE
 .idea
 
+#npm
+package-lock.json
+
 # Default ignored files
 /shelf/
 # Ignored default folder with query files
