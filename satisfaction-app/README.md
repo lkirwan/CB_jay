@@ -51,6 +51,28 @@ After building, serve the production bundle locally to verify it before deployme
 npm run preview
 ```
 
+## Run tests
+
+Execute the frontend unit tests once:
+
+```bash
+npm run test
+```
+
+Watch mode for local TDD:
+
+```bash
+npm run test:watch
+```
+
+Generate a coverage report:
+
+```bash
+npm run coverage
+```
+
+Coverage HTML report is written to `coverage/index.html`.
+
 ## Environment notes
 
 The frontend calls API paths through `VITE_API_BASE_URL` (defaults to `/api`).
