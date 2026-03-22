@@ -24,23 +24,28 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final SecurityProperties securityProperties;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          SecurityProperties securityProperties) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.securityProperties = securityProperties;
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] permitGet  = securityProperties.permitGet().toArray(String[]::new);
+        String[] permitPost = securityProperties.permitPost().toArray(String[]::new);
+
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/public/offerings").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/public/ratings").permitAll()
+                        .requestMatchers(securityProperties.h2ConsolePath()).permitAll()
+                        .requestMatchers(HttpMethod.GET,  permitGet).permitAll()
+                        .requestMatchers(HttpMethod.POST, permitPost).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -67,4 +72,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
