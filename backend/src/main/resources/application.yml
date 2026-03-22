@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/cb_jay;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+app:
+  frontend-origin: http://localhost:5173
+  facilitator:
+    username: facilitator
+    password: manager
+  jwt:
+    secret: 4f00b07d89ba18ef7651127ed7959407ea9db5e70d5f4f79344dcdb9a7b4d7fb3d24de3158557189194793349dce5d3e3ee47fe2536daa7f1f9c567a06e5ab0b
+    expiration-minutes: 480
+  security:
+    h2-console-path: /h2-console/**
+    permit-post:
+      - /api/auth/login
+      - /api/public/ratings
+    permit-get:
+      - /api/public/offerings
+
+

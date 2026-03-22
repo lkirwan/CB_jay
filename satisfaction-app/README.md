@@ -1,6 +1,12 @@
 # Satisfaction App
 
-React + Vite frontend for the client satisfaction feedback project.
+React + Vite frontend for the CB Jay satisfaction project.
+
+This app now uses a separate Spring Boot API backend (`../backend`) for:
+
+- offerings and ratings persistence
+- facilitator authentication
+- offering status and lifecycle date updates
 
 ## Requirements
 
@@ -25,6 +31,8 @@ npm run dev
 
 This starts the app in development mode with hot reloading.
 
+For full functionality, the backend should also be running on `http://localhost:8080`.
+
 ## Run for PROD
 
 Create an optimized production build:
@@ -43,20 +51,51 @@ After building, serve the production bundle locally to verify it before deployme
 npm run preview
 ```
 
+## Run tests
+
+Execute the frontend unit tests once:
+
+```bash
+npm run test
+```
+
+Watch mode for local TDD:
+
+```bash
+npm run test:watch
+```
+
+Generate a coverage report:
+
+```bash
+npm run coverage
+```
+
+Coverage HTML report is written to `coverage/index.html`.
+
 ## Environment notes
 
-This app does not currently include any checked-in environment files.
+The frontend calls API paths through `VITE_API_BASE_URL` (defaults to `/api`).
 
-If you need environment-specific values later, use Vite's standard file names:
+During local development, Vite proxies `/api` to `http://localhost:8080`.
 
-- `.env.development` for non-prod/local development values
-- `.env.production` for production build values
+You can override the API base URL with a local env file:
 
-Only variables prefixed with `VITE_` are exposed to the React app.
+```bash
+cp .env.example .env.local
+```
 
 ## Common workflow
 
 ```bash
+cd ../backend
+mvn spring-boot:run
+```
+
+In another terminal:
+
+```bash
+cd satisfaction-app
 npm install
 npm run dev
 ```

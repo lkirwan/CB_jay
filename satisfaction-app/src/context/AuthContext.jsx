@@ -1,31 +1,49 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-
-const SESSION_KEY = 'cb_jay_facilitator_auth';
-const FACILITATOR_PASSWORD = import.meta.env.VITE_FACILITATOR_PASSWORD ?? 'manager';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { authApi, clearStoredToken, getStoredToken, setStoredToken } from '../lib/api';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    () => sessionStorage.getItem(SESSION_KEY) === '1'
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback((password) => {
-    if (password === FACILITATOR_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, '1');
-      setIsAuthenticated(true);
-      return true;
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token) {
+      setIsLoading(false);
+      return;
     }
-    return false;
+
+    authApi.me()
+      .then((currentUser) => {
+        setUser(currentUser);
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        clearStoredToken();
+        setUser(null);
+        setIsAuthenticated(false);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const login = useCallback(async (password) => {
+    const response = await authApi.login(password);
+    setStoredToken(response.token);
+    setUser({ username: response.username, role: response.role });
+    setIsAuthenticated(true);
+    return response;
   }, []);
 
   const logout = useCallback(() => {
-    sessionStorage.removeItem(SESSION_KEY);
+    clearStoredToken();
+    setUser(null);
     setIsAuthenticated(false);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

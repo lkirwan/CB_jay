@@ -1,10 +1,21 @@
-import { useState, useEffect } from 'react';
-import { useStore } from '../hooks/useStore';
+import { useState, useEffect, useCallback } from 'react';
 import StarRating from '../components/StarRating';
+import { offeringsApi, ratingsApi } from '../lib/api';
+
+function formatDateTime(value) {
+  if (!value) return '—';
+  return new Date(value).toLocaleString([], {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
 
 function OfferingCard({ offering, ratings, onToggleStatus }) {
   const [expanded, setExpanded] = useState(false);
-  const isActive = (offering.status ?? 'active') === 'active';
+  const isActive = offering.status === 'active';
   const offeringRatings = ratings.filter((r) => r.offeringId === offering.id);
   const avg =
     offeringRatings.length > 0
@@ -52,6 +63,20 @@ function OfferingCard({ offering, ratings, onToggleStatus }) {
 
       {expanded && (
         <div className="offering-card-body">
+          <div className="offering-details">
+            <h4>Offering Details</h4>
+            <div className="offering-detail-grid">
+              <div className="offering-detail-item">
+                <span className="offering-detail-label">Start Date</span>
+                <span className="offering-detail-value">{formatDateTime(offering.startDate || offering.createdAt)}</span>
+              </div>
+              <div className="offering-detail-item">
+                <span className="offering-detail-label">Closed Date</span>
+                <span className="offering-detail-value">{formatDateTime(offering.closedDate)}</span>
+              </div>
+            </div>
+          </div>
+
           {offeringRatings.length === 0 ? (
             <p className="empty-message">No ratings have been submitted for this offering yet.</p>
           ) : (
@@ -109,45 +134,106 @@ function OfferingCard({ offering, ratings, onToggleStatus }) {
 }
 
 export default function DashboardPage() {
-  const { data, addOffering, setOfferingStatus } = useStore();
+  const [offerings, setOfferings] = useState([]);
+  const [ratings, setRatings] = useState([]);
   const [newName, setNewName] = useState('');
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [sortBy, setSortBy] = useState('recent');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const id = setInterval(() => setLastUpdated(new Date()), 3000);
-    return () => clearInterval(id);
+  const loadDashboard = useCallback(async () => {
+    const [nextOfferings, nextRatings] = await Promise.all([
+      offeringsApi.listAll(),
+      ratingsApi.listAll(),
+    ]);
+    setOfferings(nextOfferings);
+    setRatings(nextRatings);
+    setLastUpdated(new Date());
   }, []);
 
-  function handleAddOffering(e) {
+  useEffect(() => {
+    let isMounted = true;
+
+    loadDashboard()
+      .catch((err) => {
+        if (isMounted) {
+          setError(err.message || 'Unable to load dashboard data.');
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    const id = setInterval(() => {
+      loadDashboard().catch(() => {});
+    }, 3000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(id);
+    };
+  }, [loadDashboard]);
+
+  async function handleAddOffering(e) {
     e.preventDefault();
     if (!newName.trim()) return;
-    addOffering(newName);
-    setNewName('');
+
+    try {
+      setError('');
+      await offeringsApi.create(newName);
+      setNewName('');
+      await loadDashboard();
+    } catch (err) {
+      setError(err.message || 'Unable to create offering.');
+    }
   }
 
-  const totalRatings = data.ratings.length;
+  async function handleToggleStatus(id, status) {
+    try {
+      setError('');
+      await offeringsApi.updateStatus(id, status);
+      await loadDashboard();
+    } catch (err) {
+      setError(err.message || 'Unable to update offering status.');
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="page-center">
+        <div className="card login-card">
+          <h2 className="card-title">Loading dashboard…</h2>
+          <p className="card-subtitle">Fetching offerings and ratings from the API.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalRatings = ratings.length;
   const overallAvg =
     totalRatings > 0
-      ? data.ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
+      ? ratings.reduce((sum, r) => sum + r.score, 0) / totalRatings
       : null;
 
-  const activeCount = data.offerings.filter((o) => (o.status ?? 'active') === 'active').length;
-  const closedCount = data.offerings.filter((o) => o.status === 'closed').length;
+  const activeCount = offerings.filter((o) => o.status === 'active').length;
+  const closedCount = offerings.filter((o) => o.status === 'closed').length;
 
-  const filteredOfferings = data.offerings.filter((o) => {
-    if (statusFilter === 'active') return (o.status ?? 'active') === 'active';
+  const filteredOfferings = offerings.filter((o) => {
+    if (statusFilter === 'active') return o.status === 'active';
     if (statusFilter === 'closed') return o.status === 'closed';
     return true;
   });
 
   const sortedOfferings = [...filteredOfferings].sort((a, b) => {
-    if (sortBy === 'recent') return new Date(b.createdAt) - new Date(a.createdAt);
+    if (sortBy === 'recent') return new Date(b.startDate || b.createdAt) - new Date(a.startDate || a.createdAt);
     if (sortBy === 'alpha') return a.name.localeCompare(b.name);
     if (sortBy === 'score') {
-      const aRatings = data.ratings.filter((r) => r.offeringId === a.id);
-      const bRatings = data.ratings.filter((r) => r.offeringId === b.id);
+      const aRatings = ratings.filter((r) => r.offeringId === a.id);
+      const bRatings = ratings.filter((r) => r.offeringId === b.id);
       const aAvg = aRatings.length > 0 ? aRatings.reduce((s, r) => s + r.score, 0) / aRatings.length : 0;
       const bAvg = bRatings.length > 0 ? bRatings.reduce((s, r) => s + r.score, 0) / bRatings.length : 0;
       return bAvg - aAvg;
@@ -163,6 +249,7 @@ export default function DashboardPage() {
           <p className="last-updated">
             Live · Last refreshed {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
+          {error && <p className="form-error dashboard-error">{error}</p>}
         </div>
       </div>
 
@@ -207,7 +294,7 @@ export default function DashboardPage() {
         <div className="offerings-header">
           <div className="offerings-header-top">
             <h3>All Offerings</h3>
-            {data.offerings.length > 1 && (
+            {offerings.length > 1 && (
               <div className="sort-controls">
                 <label htmlFor="sort-select">Sort by:</label>
                 <select
@@ -225,7 +312,7 @@ export default function DashboardPage() {
           </div>
           <div className="status-tabs">
             {[
-              { key: 'all', label: `All (${data.offerings.length})` },
+              { key: 'all', label: `All (${offerings.length})` },
               { key: 'active', label: `Active (${activeCount})` },
               { key: 'closed', label: `Closed (${closedCount})` },
             ].map(({ key, label }) => (
@@ -244,7 +331,7 @@ export default function DashboardPage() {
         {filteredOfferings.length === 0 ? (
           <div className="empty-state">
             <p>
-              {data.offerings.length === 0
+              {offerings.length === 0
                 ? 'No offerings yet. Add one above.'
                 : `No ${statusFilter} offerings.`}
             </p>
@@ -252,7 +339,7 @@ export default function DashboardPage() {
         ) : (
           <div className="offerings-list">
             {sortedOfferings.map((o) => (
-              <OfferingCard key={o.id} offering={o} ratings={data.ratings} onToggleStatus={setOfferingStatus} />
+              <OfferingCard key={o.id} offering={o} ratings={ratings} onToggleStatus={handleToggleStatus} />
             ))}
           </div>
         )}
