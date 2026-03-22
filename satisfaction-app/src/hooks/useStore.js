@@ -46,12 +46,24 @@ export function useStore() {
       ...fresh,
       offerings: [
         ...fresh.offerings,
-        { id: crypto.randomUUID(), name: name.trim(), createdAt: new Date().toISOString() },
+        { id: crypto.randomUUID(), name: name.trim(), status: 'active', createdAt: new Date().toISOString() },
       ],
     };
     saveData(updated);
     setData(updated);
     return updated.offerings[updated.offerings.length - 1];
+  }, []);
+
+  const setOfferingStatus = useCallback((id, status) => {
+    const fresh = loadData();
+    const updated = {
+      ...fresh,
+      offerings: fresh.offerings.map((o) =>
+        o.id === id ? { ...o, status } : o
+      ),
+    };
+    saveData(updated);
+    setData(updated);
   }, []);
 
   const addRating = useCallback((offeringId, score, username) => {
@@ -83,5 +95,5 @@ export function useStore() {
     [data.ratings]
   );
 
-  return { data, addOffering, addRating, getOfferingStats };
+  return { data, addOffering, setOfferingStatus, addRating, getOfferingStats };
 }
