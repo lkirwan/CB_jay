@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { AuthProvider, useAuth } from './AuthContext';
+import { AuthProvider } from './AuthContext';
+import { useAuth } from './useAuth';
 
 const loginMock = vi.fn();
 const meMock = vi.fn();
@@ -115,4 +116,5 @@ describe('AuthContext', () => {
     expect(screen.getByTestId('username')).toHaveTextContent('none');
   });
 });
+
 

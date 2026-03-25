@@ -5,7 +5,7 @@ import ProtectedRoute from './ProtectedRoute';
 
 const mockUseAuth = vi.fn();
 
-vi.mock('../context/AuthContext', () => ({
+vi.mock('../context/useAuth', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
@@ -62,4 +62,5 @@ describe('ProtectedRoute', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 });
+
 
