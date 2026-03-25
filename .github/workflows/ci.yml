@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ disabling_action_via_nonexisting_branch ]
   pull_request:
-    branches: [ main ]
+    branches: [ disabling_action_via_nonexisting_branch ]
 
 permissions:
   contents: read
