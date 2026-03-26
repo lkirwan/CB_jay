@@ -1,5 +1,6 @@
 services:
   backend:
+    image: ${BACKEND_IMAGE:-backend:latest}
     build:
       context: ./backend
     container_name: cbjay-backend
@@ -17,6 +18,7 @@ services:
       - "8080"
 
   frontend:
+    image: ${FRONTEND_IMAGE:-frontend:latest}
     build:
       context: ./satisfaction-app
       args:

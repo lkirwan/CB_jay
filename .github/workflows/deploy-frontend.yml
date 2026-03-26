@@ -1,19 +1,19 @@
-name: Deploy Backend to DigitalOcean
+name: Deploy Frontend to DigitalOcean
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'backend/**'
+      - 'satisfaction-app/**'
       - 'docker-compose.prod.yml'
-      - '.github/workflows/deploy-backend.yml'
+      - '.github/workflows/deploy-frontend.yml'
 
 permissions:
   contents: read
 
 jobs:
   deploy:
-    name: Build, push & deploy backend Docker image
+    name: Build, push & deploy frontend Docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -27,25 +27,22 @@ jobs:
 
       # ── Log in to DigitalOcean Container Registry ────────────────────────
       - name: Log in to DOCR
-        # 600 s (10 min) is sufficient to cover the docker build + push steps that follow
         run: doctl registry login --expiry-seconds 600
 
       # ── Build & push the image via docker compose ────────────────────────
       - name: Build Docker image
         env:
-          BACKEND_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/backend:${{ github.sha }}
-        run: docker compose -f docker-compose.prod.yml build backend
+          FRONTEND_IMAGE: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}/frontend:${{ github.sha }}
+        run: docker compose -f docker-compose.prod.yml build frontend
 
       - name: Push Docker image
         env:
           REGISTRY: registry.digitalocean.com/${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}
         run: |
-          docker tag $REGISTRY/backend:${{ github.sha }} $REGISTRY/backend:latest
-          docker push $REGISTRY/backend:${{ github.sha }}
-          docker push $REGISTRY/backend:latest
+          docker tag $REGISTRY/frontend:${{ github.sha }} $REGISTRY/frontend:latest
+          docker push $REGISTRY/frontend:${{ github.sha }}
+          docker push $REGISTRY/frontend:latest
 
       # ── Trigger App Platform deployment ─────────────────────────────────
       - name: Deploy to DigitalOcean App Platform
-        # --wait streams deployment progress and exits non-zero if the deployment fails,
-        # surfacing the full doctl error in the Actions log.
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --wait
