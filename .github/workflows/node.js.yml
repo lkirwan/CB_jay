@@ -63,6 +63,7 @@ jobs:
       uses: actions/upload-pages-artifact@v3
       with:
         path: satisfaction-app/dist/
+        overwrite: true
 
     - name: Deploy to GitHub Pages
       id: deployment
