@@ -25,30 +25,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: satisfaction-app/package-lock.json
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
 
-      - name: Install dependencies
-        working-directory: satisfaction-app
-        run: npm ci
-
-      - name: Build
-        working-directory: satisfaction-app
-        run: npm run build -- --base=/CB_jay/
+      - name: Build frontend Docker image
+        run: docker compose -f docker-compose.prod.yml build frontend
         env:
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_BASE: /CB_jay/
+
+      - name: Extract built files from image
+        run: |
+          mkdir -p dist
+          id=$(docker create frontend:latest)
+          docker cp "$id:/usr/share/nginx/html/." dist/
+          docker rm "$id"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: satisfaction-app/dist
+          path: dist/
 
   deploy:
     name: Deploy to GitHub Pages
