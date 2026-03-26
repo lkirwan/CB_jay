@@ -1,9 +1,8 @@
 name: Deploy satisfaction-app to GitHub Pages
 
+# This workflow is disabled.
 on:
-  pull_request:
-    branches: [ main ]
-    types: [ closed ]
+  workflow_dispatch:
 
 permissions:
   contents: read
