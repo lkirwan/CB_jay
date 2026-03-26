@@ -49,3 +49,23 @@ jobs:
         # --wait streams deployment progress and exits non-zero if the deployment fails,
         # surfacing the full doctl error in the Actions log.
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --wait
+
+      # ── Prune old images (keep ≤ 2: latest + most-recent SHA tag) ────────
+      - name: Prune old images from DOCR
+        run: |
+          REGISTRY_NAME="${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}"
+          # List all tags except 'latest'; doctl returns them newest-first by default.
+          # '|| true' prevents a non-zero exit from grep when no SHA tags exist yet.
+          TAGS=$(doctl registry repository list-tags "$REGISTRY_NAME/backend" \
+            --format Tag --no-header | grep -v '^latest$' || true)
+          # Skip the first (newest) SHA tag; collect the rest for deletion.
+          TAGS_TO_DELETE=$(echo "$TAGS" | tail -n +2)
+          if [ -n "$TAGS_TO_DELETE" ]; then
+            while IFS= read -r tag; do
+              echo "Deleting old tag: $tag"
+              doctl registry repository delete-tag "$REGISTRY_NAME/backend" "$tag" --force
+            done <<< "$TAGS_TO_DELETE"
+            # Reclaim storage from deleted manifests (runs after deployment is complete).
+            doctl registry garbage-collection run \
+              --include-untagged-manifests "$REGISTRY_NAME" --force
+          fi
