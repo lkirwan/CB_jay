@@ -49,6 +49,7 @@ class RatingServiceTest {
         rating.setOffering(offering);
         rating.setScore(5);
         rating.setUsername("alice");
+        rating.setFeedback("Great session!");
         rating.setCreatedAt(Instant.parse("2025-02-01T12:00:00Z"));
 
         when(ratingRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(rating));
@@ -59,11 +60,12 @@ class RatingServiceTest {
         assertEquals(rating.getId().toString(), result.get(0).id());
         assertEquals(offering.getId().toString(), result.get(0).offeringId());
         assertEquals("alice", result.get(0).username());
+        assertEquals("Great session!", result.get(0).feedback());
     }
 
     @Test
     void createRatingRejectsInvalidOfferingId() {
-        CreateRatingRequest request = new CreateRatingRequest("invalid-uuid", 4, "user");
+        CreateRatingRequest request = new CreateRatingRequest("invalid-uuid", 4, "user", null);
 
         ApiException ex = assertThrows(ApiException.class, () -> ratingService.createRating(request));
 
@@ -83,7 +85,7 @@ class RatingServiceTest {
         when(offeringService.getRequiredActiveOffering(offeringId)).thenReturn(offering);
         when(ratingRepository.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 3, "  bob  ");
+        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 3, "  bob  ", "Good.");
         RatingDto result = ratingService.createRating(request);
 
         ArgumentCaptor<Rating> captor = ArgumentCaptor.forClass(Rating.class);
@@ -94,6 +96,7 @@ class RatingServiceTest {
         assertEquals(3, saved.getScore());
         assertEquals(offering, saved.getOffering());
         assertEquals("bob", result.username());
+        assertEquals("Good.", result.feedback());
     }
 
     @Test
@@ -106,7 +109,7 @@ class RatingServiceTest {
         when(offeringService.getRequiredActiveOffering(offeringId)).thenReturn(offering);
         when(ratingRepository.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 5, "   ");
+        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 5, "   ", null);
         RatingDto result = ratingService.createRating(request);
 
         ArgumentCaptor<Rating> captor = ArgumentCaptor.forClass(Rating.class);
@@ -114,6 +117,47 @@ class RatingServiceTest {
 
         assertNull(captor.getValue().getUsername());
         assertNull(result.username());
+        assertNull(result.feedback());
     }
-}
 
+    @Test
+    void createRatingTrimsFeedbackAndStoresNullWhenBlank() {
+        UUID offeringId = UUID.randomUUID();
+        Offering offering = new Offering();
+        offering.setId(offeringId);
+        offering.setStatus(OfferingStatus.ACTIVE);
+
+        when(offeringService.getRequiredActiveOffering(offeringId)).thenReturn(offering);
+        when(ratingRepository.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 4, "charlie", "  ");
+        ratingService.createRating(request);
+
+        ArgumentCaptor<Rating> captor = ArgumentCaptor.forClass(Rating.class);
+        verify(ratingRepository).save(captor.capture());
+
+        assertNull(captor.getValue().getFeedback());
+    }
+
+    @Test
+    void createRatingPersistsTrimmedFeedback() {
+        UUID offeringId = UUID.randomUUID();
+        Offering offering = new Offering();
+        offering.setId(offeringId);
+        offering.setStatus(OfferingStatus.ACTIVE);
+
+        when(offeringService.getRequiredActiveOffering(offeringId)).thenReturn(offering);
+        when(ratingRepository.save(any(Rating.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CreateRatingRequest request = new CreateRatingRequest(offeringId.toString(), 5, "dave", "  Very helpful!  ");
+        RatingDto result = ratingService.createRating(request);
+
+        ArgumentCaptor<Rating> captor = ArgumentCaptor.forClass(Rating.class);
+        verify(ratingRepository).save(captor.capture());
+
+        assertEquals("Very helpful!", captor.getValue().getFeedback());
+        assertEquals("Very helpful!", result.feedback());
+    }
+
+
+}

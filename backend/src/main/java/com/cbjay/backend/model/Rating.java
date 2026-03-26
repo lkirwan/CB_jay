@@ -28,6 +28,9 @@ public class Rating {
     @Column(length = 100)
     private String username;
 
+    @Column(length = 2000)
+    private String feedback;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -63,6 +66,14 @@ public class Rating {
         this.username = username;
     }
 
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -71,5 +82,7 @@ public class Rating {
         this.createdAt = createdAt;
     }
 }
+
+
 
 

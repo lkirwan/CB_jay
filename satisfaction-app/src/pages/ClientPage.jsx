@@ -9,6 +9,7 @@ export default function ClientPage() {
   const [offeringId, setOfferingId] = useState('');
   const [score, setScore] = useState(0);
   const [username, setUsername] = useState('');
+  const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
@@ -97,7 +98,7 @@ export default function ClientPage() {
       return;
     }
 
-    ratingsApi.create({ offeringId, score, username })
+    ratingsApi.create({ offeringId, score, username, feedback })
       .then(() => {
         setSubmitted(true);
       })
@@ -110,6 +111,7 @@ export default function ClientPage() {
     setOfferingId(activeOfferings.length === 1 ? activeOfferings[0].id : '');
     setScore(0);
     setUsername('');
+    setFeedback('');
     setSubmitted(false);
     setError('');
   }
@@ -187,6 +189,22 @@ export default function ClientPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               maxLength={100}
+            />
+          </div>
+
+          {/* Optional feedback */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="feedback">
+              Feedback <span className="optional">(optional)</span>
+            </label>
+            <textarea
+              id="feedback"
+              className="form-input"
+              placeholder="Any additional comments…"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              maxLength={2000}
+              rows={4}
             />
           </div>
 

@@ -7,7 +7,9 @@ public record RatingDto(
         String offeringId,
         int score,
         String username,
+        String feedback,
         Instant createdAt
 ) {
 }
+
 

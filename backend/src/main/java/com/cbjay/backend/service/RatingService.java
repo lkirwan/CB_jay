@@ -45,6 +45,8 @@ public class RatingService {
         rating.setScore(request.score());
         String username = request.username() == null ? null : request.username().trim();
         rating.setUsername(username == null || username.isBlank() ? null : username);
+        String feedback = request.feedback() == null ? null : request.feedback().trim();
+        rating.setFeedback(feedback == null || feedback.isBlank() ? null : feedback);
         rating.setCreatedAt(java.time.Instant.now());
 
         return toDto(ratingRepository.save(rating));
@@ -56,8 +58,11 @@ public class RatingService {
                 rating.getOffering().getId().toString(),
                 rating.getScore(),
                 rating.getUsername(),
+                rating.getFeedback(),
                 rating.getCreatedAt()
         );
     }
 }
+
+
 
