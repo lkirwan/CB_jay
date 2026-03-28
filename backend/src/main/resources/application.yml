@@ -17,7 +17,7 @@ spring:
       path: /h2-console
 
 app:
-  frontend-origin: http://localhost:5173
+  frontend-origins: http://localhost:5173
   facilitator:
     username: facilitator
     password: manager

@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      APP_FRONTEND_ORIGIN: ${APP_FRONTEND_ORIGIN:-https://app.example.com}
+      APP_FRONTEND_ORIGINS: ${APP_FRONTEND_ORIGINS:-https://app.example.com}
       APP_FACILITATOR_USERNAME: ${APP_FACILITATOR_USERNAME:-facilitator}
       APP_FACILITATOR_PASSWORD: ${APP_FACILITATOR_PASSWORD:-change-me-now}
       APP_JWT_SECRET: ${APP_JWT_SECRET:-replace-with-a-long-random-secret}
