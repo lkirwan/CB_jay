@@ -55,7 +55,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          name: repo.patch-${{ strategy.job-index }}
+          name: github-pages
           path: satisfaction-app/dist/
           overwrite: true
 
