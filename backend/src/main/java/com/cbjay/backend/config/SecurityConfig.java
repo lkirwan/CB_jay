@@ -56,8 +56,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(@Value("${app.frontend-origins}") String frontendOrigins) {
-        List<String> allowedOrigins = Arrays.stream(frontendOrigins.split(","))
+    CorsConfigurationSource corsConfigurationSource(@Value("${app.frontend-origin}") String frontendOrigin) {
+        List<String> allowedOrigins = Arrays.stream(frontendOrigin.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
