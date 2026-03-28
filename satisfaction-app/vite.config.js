@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const devApiProxyTarget = env.VITE_DEV_API_PROXY_TARGET ?? 'http://localhost:8080'
 
   return {
+    base: process.env.VITE_BASE || '/',
     plugins: [react()],
     server: {
       proxy: {
