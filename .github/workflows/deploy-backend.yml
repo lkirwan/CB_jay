@@ -62,6 +62,7 @@ jobs:
           # alphabetically, not chronologically.
           TAGS_TO_DELETE=$(
             doctl registry repository list-tags backend \
+              --registry-name "$REGISTRY_NAME" \
               --format Tag --no-header \
             | grep -v '^latest$' \
             | grep -v "^${CURRENT_TAG}$" || true
@@ -69,9 +70,11 @@ jobs:
           if [ -n "$TAGS_TO_DELETE" ]; then
             while IFS= read -r tag; do
               echo "Deleting old tag: $tag"
-              doctl registry repository delete-tag backend "$tag" --force
+              doctl registry repository delete-tag backend "$tag" \
+                --registry-name "$REGISTRY_NAME" --force
             done <<< "$TAGS_TO_DELETE"
             # Reclaim storage from deleted manifests (runs after deployment is complete).
             doctl registry garbage-collection run \
-              --include-untagged-manifests "$REGISTRY_NAME" --force
+              --registry-name "$REGISTRY_NAME" \
+              --include-untagged-manifests --force
           fi
