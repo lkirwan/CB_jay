@@ -75,8 +75,28 @@ Merging a PR into `main` automatically builds the backend Docker image, pushes i
 ### One-time setup
 
 1. Create a registry: `doctl registry create <name>`
-2. Create an App Platform app that uses the `backend` image from DOCR.
+2. Create an App Platform app configured to use the pre-built image from DOCR (see [App Platform spec](#app-platform-spec) below).
 3. Add the three secrets above to **Settings → Secrets and variables → Actions** in the GitHub repository.
+
+### App Platform spec
+
+The App Platform app **must** be configured to pull the pre-built image from DOCR rather than build from source.  Without this, App Platform skips the build step but then fails to find the correct image to deploy.
+
+In your App Platform app spec (DigitalOcean dashboard → App → Settings → App Spec, or via `doctl apps update`), the `backend` service should reference the DOCR image:
+
+```yaml
+services:
+  - name: backend
+    image:
+      registry_type: DOCR
+      repository: <YOUR_REGISTRY_NAME>/backend
+      tag: latest
+    http_port: 8080
+```
+
+Replace `<YOUR_REGISTRY_NAME>` with the value stored in the `DIGITALOCEAN_REGISTRY_NAME` secret.
+
+Every time the workflow runs it pushes a new `latest` tag to DOCR and then calls `doctl apps create-deployment` to trigger App Platform to pull and deploy that image.
 
 ## Notes
 
