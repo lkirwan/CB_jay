@@ -1,0 +1,28 @@
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+ingress:
+  rules:
+  - component:
+      name: backend
+    match:
+      path:
+        prefix: /
+name: urchin-app
+region: tor
+services:
+- health_check:
+    failure_threshold: 9
+    http_path: /api/public/offerings
+    period_seconds: 10
+    success_threshold: 1
+    timeout_seconds: 1
+  http_port: 8080
+  image:
+    registry: ${DIGITALOCEAN_REGISTRY_NAME}
+    registry_type: DOCR
+    repository: backend
+    tag: latest
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  name: backend
