@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ClientPage from './pages/ClientPage';
 import DashboardPage from './pages/DashboardPage';
 import FacilitatorLoginPage from './pages/FacilitatorLoginPage';
+import WorldCupPathPage from './pages/WorldCupPathPage';
 import './App.css';
 
 export default function App() {
@@ -17,14 +18,14 @@ export default function App() {
             <Routes>
               <Route path="/" element={<ClientPage />} />
               <Route path="/login" element={<FacilitatorLoginPage />} />
-              <Route
-                path="/dashboard"
+              <Route path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
                   </ProtectedRoute>
                 }
               />
+              <Route path="/worldcup" element={<WorldCupPathPage />} />
             </Routes>
           </main>
         </div>
