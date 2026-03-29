@@ -50,20 +50,26 @@ jobs:
         # surfacing the full doctl error in the Actions log.
         run: doctl apps create-deployment ${{ secrets.DIGITALOCEAN_APP_ID }} --wait
 
-      # ── Prune old images (keep ≤ 2: latest + most-recent SHA tag) ────────
+      # ── Prune old images (keep ≤ 2: latest + current SHA tag) ──────────
       - name: Prune old images from DOCR
+        env:
+          CURRENT_TAG: ${{ github.sha }}
+          REGISTRY_NAME: ${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}
         run: |
-          REGISTRY_NAME="${{ secrets.DIGITALOCEAN_REGISTRY_NAME }}"
-          # List all tags except 'latest'; doctl returns them newest-first by default.
-          # '|| true' prevents a non-zero exit from grep when no SHA tags exist yet.
-          TAGS=$(doctl registry repository list-tags "backend" \
-            --format Tag --no-header | grep -v '^latest$' || true)
-          # Skip the first (newest) SHA tag; collect the rest for deletion.
-          TAGS_TO_DELETE=$(echo "$TAGS" | tail -n +2)
+          # List all tags, then delete any that are neither 'latest' nor the
+          # SHA tag we just pushed.  Using $CURRENT_TAG is reliable because
+          # doctl does NOT guarantee newest-first ordering; SHA tags are sorted
+          # alphabetically, not chronologically.
+          TAGS_TO_DELETE=$(
+            doctl registry repository list-tags backend \
+              --format Tag --no-header \
+            | grep -v '^latest$' \
+            | grep -v "^${CURRENT_TAG}$" || true
+          )
           if [ -n "$TAGS_TO_DELETE" ]; then
             while IFS= read -r tag; do
               echo "Deleting old tag: $tag"
-              doctl registry repository delete-tag "backend" "$tag" --force
+              doctl registry repository delete-tag backend "$tag" --force
             done <<< "$TAGS_TO_DELETE"
             # Reclaim storage from deleted manifests (runs after deployment is complete).
             doctl registry garbage-collection run \
