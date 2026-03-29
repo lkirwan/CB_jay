@@ -11,6 +11,7 @@ This folder documents containerized workflows for `backend/` and `satisfaction-a
 - `satisfaction-app/nginx/default.conf`
 - `docker-compose.dev.yml`
 - `docker-compose.prod.yml`
+- `.do/app.yaml`
 
 ## Development (Docker Compose)
 
@@ -75,8 +76,37 @@ Merging a PR into `main` automatically builds the backend Docker image, pushes i
 ### One-time setup
 
 1. Create a registry: `doctl registry create <name>`
-2. Create an App Platform app that uses the `backend` image from DOCR.
+2. Create an App Platform app configured to use the pre-built image from DOCR (see [App Platform spec](#app-platform-spec) below).
 3. Add the three secrets above to **Settings → Secrets and variables → Actions** in the GitHub repository.
+
+### App Platform spec
+
+The App Platform app **must** be configured to pull the pre-built image from DOCR rather than build from source.  Without this, App Platform skips the build step but cannot find the correct image to deploy.
+
+The canonical spec is stored in [`.do/app.yaml`](../.do/app.yaml).  It uses `${DIGITALOCEAN_REGISTRY_NAME}` as a placeholder for the registry name.  To apply it to your App Platform app, run once after any manual changes:
+
+```bash
+DIGITALOCEAN_REGISTRY_NAME=<your-registry-name> \
+  envsubst < .do/app.yaml | \
+  doctl apps update <APP_ID> --spec -
+```
+
+The key section of the spec that configures the pre-built DOCR image is:
+
+```yaml
+services:
+  - name: backend
+    image:
+      registry_type: DOCR
+      registry: <YOUR_REGISTRY_NAME>   # the part after registry.digitalocean.com/
+      repository: backend              # image name only — no registry prefix
+      tag: latest
+    http_port: 8080
+```
+
+> **Note on `deploy_on_push`**: The spec intentionally omits `deploy_on_push` so that the GitHub Actions workflow is the single source of deployment triggers.  Combining `deploy_on_push` with the workflow's explicit `doctl apps create-deployment --wait` would start two deployments on every push.
+
+Every time the workflow runs it pushes a new `latest` tag to DOCR and then calls `doctl apps create-deployment --wait` to trigger App Platform to pull and deploy that image.
 
 ## Notes
 
