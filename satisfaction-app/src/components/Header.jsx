@@ -21,9 +21,6 @@ export default function Header() {
         <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
           Submit Rating
         </NavLink>
-        <NavLink to="/worldcup" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-          ⚽ WC 2026 Path
-        </NavLink>
         {isAuthenticated ? (
           <>
             <NavLink to="/dashboard" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
